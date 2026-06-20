@@ -1,0 +1,32 @@
+name: Deploy WhatsApp Potoos Research Wrapper
+
+on:
+  push:
+    branches:
+      - main # Jab bhi main branch par push ho, tab pipeline chalegi
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository Code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Server via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            echo "Starting Slim Deployment..."
+            cd ~/whatsapp-potoos-research/
+            echo "Pulling latest changes from GitHub..."
+            git pull origin main
+            echo "Rebuilding and restarting Docker container..."
+            docker compose down
+            docker compose up -d --build
+
+            echo "Deployment successful and container is up!"
