@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  whatsapp-potoos:
+    container_name: whatsapp_wrapper_potoos
+    build:
+      context: ./whatsapp-wrapper
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      - TZ=Asia/Kolkata
+      - PORT=3333
+      - ENABLE_INCOMING_MESSAGES=true
+      - DATABASE_PATH=/usr/src/app/storage/whatsapp.db
+      - POSTBACK_URL=http://potoos-api:8080/api/whatsapp/action-webhook/ # golang webhook to recive postback
+    volumes:
+      - ./whatsapp-wrapper/src:/usr/src/app/src
+      - whatsapp_potoos_data:/usr/src/app/storage
+    networks:
+      - potoos_shared_mesh
+
+volumes:
+  whatsapp_potoos_data:
+
+networks:
+  potoos_shared_mesh:
+    external: true
